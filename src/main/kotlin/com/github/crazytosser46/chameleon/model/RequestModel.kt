@@ -2,11 +2,12 @@ package com.github.crazytosser46.chameleon.model
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import org.springframework.web.bind.annotation.RequestMethod
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
-    property = "matcherOperation"
+    property = "operation"
 )
 @JsonSubTypes(
     JsonSubTypes.Type(value = AnyRequestModel::class, name = "ANY"),
@@ -14,36 +15,40 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(value = EqualsRequestModel::class, name = "EQUALS"),
     JsonSubTypes.Type(value = NotEqualsRequestModel::class, name = "NOT_EQUALS")
 )
-sealed class RequestModel(val operation: MatcherOperation) {
-    abstract var url: String
+sealed class RequestModel {
+    abstract val uri: String
+    abstract val method: RequestMethod
     abstract val headers: Map<String, String>
     abstract val response: ResponseModel
 }
 
 data class AnyRequestModel(
-    override var url: String,
+    override val uri: String,
+    override val method: RequestMethod,
     override val headers: Map<String, String> = mapOf(),
     override val response: ResponseModel
-) : RequestModel(MatcherOperation.ANY)
+) : RequestModel()
 
 data class EqualsRequestModel(
-    override var url: String,
+    override val uri: String,
+    override val method: RequestMethod,
     override val headers: Map<String, String> = mapOf(),
     override val response: ResponseModel,
-    val paramPath: String,
-    val paramValue: String
-) : RequestModel(MatcherOperation.EQUALS)
+    val paramMap: Map<String, String>,
+) : RequestModel()
 
 data class IsOneOfRequestModel(
-    override var url: String,
+    override val uri: String,
+    override val method: RequestMethod,
     override val headers: Map<String, String> = mapOf(),
     override val response: ResponseModel,
-    val paramPath: String,
-    val paramValues: List<String>
-) : RequestModel(MatcherOperation.IS_ONE_OF)
+    val paramMap: Map<String, List<String>>
+) : RequestModel()
 
 data class NotEqualsRequestModel(
-    override var url: String,
+    override val uri: String,
+    override val method: RequestMethod,
     override val headers: Map<String, String> = mapOf(),
-    override val response: ResponseModel
-) : RequestModel(MatcherOperation.NOT_EQUALS)
+    override val response: ResponseModel,
+    val paramMap: Map<String, String>
+) : RequestModel()
