@@ -1,9 +1,16 @@
 package com.github.crazytosser46.chameleon.repository
 
 import com.github.crazytosser46.chameleon.entity.MockDocument
-import org.bson.types.ObjectId
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
-interface MockRepository: ReactiveMongoRepository<MockDocument, ObjectId> {
-    suspend fun findFirstByUri(uri: String): MockDocument?
+interface MockRepository: ReactiveMongoRepository<MockDocument, String> {
+    fun findAllByPath(path: String): Flux<MockDocument>
+
+    fun findFirstById(id: String): Mono<MockDocument?>
+
+    fun findFirstByName(name: String): Flux<MockDocument?>
+
+    fun deleteByName(name: String): Mono<Void>
 }

@@ -10,23 +10,23 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api")
-class ApiController {
-
-    @Autowired
-    private lateinit var apiService: ApiService
+class ApiController(
+    private val apiService: ApiService
+) {
 
     private val log = LoggerFactory.getLogger(ApiController::class.java)
-
-    @GetMapping("/test")
-    suspend fun createRequest() {
-        log.info("Got api request with uri {}", "123")
-    }
 
     @PostMapping("/mock/create")
     suspend fun createMock(@RequestBody mockModel: MockModel): ResponseEntity<String?> {
         log.info("Got request for creating mock {}", mockModel)
-        apiService.createMock(mockModel)
-        log.info("Mock created successful!")
-        return ResponseEntity.ok().build()
+        val mockDocument = apiService.createMock(mockModel)
+        log.info("Mock created successful with id ${mockDocument.id}!")
+        return ResponseEntity.ok("Mock created successful! Id ${mockDocument.id}")
+    }
+
+    @GetMapping("/mock/all")
+    suspend fun getAllMocks() {
+        log.info("Got request for all mocks {}")
+        apiService.getAllMocks()
     }
 }

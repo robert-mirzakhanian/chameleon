@@ -32,7 +32,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     // Log
-    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("ch.qos.logback:logback-classic:1.2.10")
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth")
 
     // Json Spec

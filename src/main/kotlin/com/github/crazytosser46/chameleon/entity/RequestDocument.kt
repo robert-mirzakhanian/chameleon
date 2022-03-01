@@ -1,13 +1,14 @@
 package com.github.crazytosser46.chameleon.entity
 
 import com.github.crazytosser46.chameleon.model.MatcherOperation
+import org.springframework.data.annotation.Transient
 import org.springframework.http.HttpMethod
 import java.time.LocalDateTime
-
 
 sealed class RequestDocument(
     var createDate: LocalDateTime = LocalDateTime.now(),
     var updateDate: LocalDateTime = LocalDateTime.now(),
+    @Transient
     val matcherOperation: MatcherOperation
 ) {
     abstract val isActive: Boolean
