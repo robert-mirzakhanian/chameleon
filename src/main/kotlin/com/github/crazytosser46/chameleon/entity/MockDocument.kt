@@ -15,6 +15,6 @@ data class MockDocument(
     @Indexed
     var path: String,
     @Indexed(unique = true)
-    var name: String? = null,
+    var name: String,
     var requests: List<RequestDocument>
 )

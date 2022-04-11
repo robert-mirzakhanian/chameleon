@@ -17,33 +17,33 @@ import org.springframework.http.HttpMethod
 )
 sealed class RequestModel {
     abstract val method: HttpMethod
-    abstract val headers: Map<String, String>
+    abstract val headers: Map<String, String>?
     abstract val response: ResponseModel
 }
 
 data class AnyRequestModel(
     override val method: HttpMethod,
-    override val headers: Map<String, String> = mapOf(),
+    override val headers: Map<String, String>? = null,
     override val response: ResponseModel
 ) : RequestModel()
 
 data class EqualsRequestModel(
     override val method: HttpMethod,
-    override val headers: Map<String, String> = mapOf(),
+    override val headers: Map<String, String>? = null,
     override val response: ResponseModel,
     val paramMap: Map<String, String>,
 ) : RequestModel()
 
 data class IsOneOfRequestModel(
     override val method: HttpMethod,
-    override val headers: Map<String, String> = mapOf(),
+    override val headers: Map<String, String>? = null,
     override val response: ResponseModel,
     val paramMap: Map<String, List<String>>
 ) : RequestModel()
 
 data class NotEqualsRequestModel(
     override val method: HttpMethod,
-    override val headers: Map<String, String> = mapOf(),
+    override val headers: Map<String, String>? = null,
     override val response: ResponseModel,
     val paramMap: Map<String, String>
 ) : RequestModel()
