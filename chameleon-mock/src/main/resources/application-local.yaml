@@ -1,0 +1,5 @@
+DB_URL: "couchbase://127.0.0.1"
+DB_USER: "Administrator"
+DB_PASSWORD: "123456"
+COUCHBASE_BUCKET: "chameleon"
+TRACING_ENABLED: false

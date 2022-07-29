@@ -1,0 +1,25 @@
+spring:
+  data:
+    couchbase:
+      auto-index: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  couchbase:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    bucket: ${COUCHBASE_BUCKET}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    org.springframework.web: debug

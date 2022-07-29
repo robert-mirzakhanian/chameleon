@@ -1,0 +1,24 @@
+spring:
+  data:
+    couchbase:
+      auto-index: true
+  sleuth:
+    enabled: ${TRACING_ENABLED}
+    baseUrl: ${TRACING_URL}
+
+app:
+  couchbase:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    bucket: ${COUCHBASE_BUCKET}
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+server:
+  port: 9000
