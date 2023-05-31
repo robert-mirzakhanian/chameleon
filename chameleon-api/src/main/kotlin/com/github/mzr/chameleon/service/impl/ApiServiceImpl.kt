@@ -5,8 +5,12 @@ import com.github.mzr.chameleon.model.*
 import com.github.mzr.chameleon.repository.MockRepository
 import com.github.mzr.chameleon.service.ApiService
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 
 
 @Service
@@ -20,19 +24,27 @@ class ApiServiceImpl : ApiService {
             name = mockDto.name,
             path = mockDto.path,
             active = mockDto.active,
-            requests = mockDto.requestDtos.map {
+            requests = mockDto.requestDtoList.map {
                 createRequestDocument(it)
             }.toMutableList()
         )
         return mockRepository.save(document).awaitFirst()
     }
 
-    override suspend fun getMockById(id: String): MockDto? {
-        return mapMockDocumentToMockModel(mockRepository.findFirstById(id).awaitFirst())
+    override suspend fun getMockById(id: String): MockDto {
+        val result = runCatching { mockRepository.findFirstById(id).awaitSingle() }
+        if (result.isFailure) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, result.exceptionOrNull()!!.message)
+        }
+        return mapMockDocumentToMockModel(result.getOrNull())!!
     }
 
-    override suspend fun getMockByName(name: String): MockDto? {
-        return mapMockDocumentToMockModel(mockRepository.findFirstByName(name).awaitFirst())
+    override suspend fun getMockByName(name: String): MockDto {
+        val result = kotlin.runCatching { mockRepository.findFirstByName(name).awaitSingle() }
+        if (result.isFailure) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, result.exceptionOrNull()!!.message)
+        }
+        return mapMockDocumentToMockModel(result.getOrNull())!!
     }
 
     override suspend fun getMocksByPath(path: String): List<MockDto> {
@@ -40,8 +52,9 @@ class ApiServiceImpl : ApiService {
             .mapNotNull { mapMockDocumentToMockModel(it) }
     }
 
-    override suspend fun getAllMocks(): List<MockDto> {
-        return mockRepository.findAll().collectList().awaitFirst().mapNotNull { mapMockDocumentToMockModel(it) }
+    override suspend fun getAllMocks(pageable: Pageable): List<MockDto> {
+        return mockRepository.findAllBy(pageable).collectList().awaitFirst()
+            .mapNotNull { mapMockDocumentToMockModel(it) }
     }
 
     override suspend fun deleteMockById(id: String) {
@@ -68,10 +81,14 @@ class ApiServiceImpl : ApiService {
         document.path = mockDto.path
         document.name = mockDto.name
         document.active = mockDto.active
-        document.requests = mockDto.requestDtos.map {
+        document.requests = mockDto.requestDtoList.map {
             createRequestDocument(it)
         }
         mockRepository.save(document).awaitFirst()
+    }
+
+    private fun <T> checkIsNotNull(expected: T?): T {
+        return expected ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 
 
@@ -111,6 +128,14 @@ class ApiServiceImpl : ApiService {
                 responseDocument = responseDocument,
                 headers = requestDto.headers
             )
+            else -> {
+                AnyRequestDocument(
+                    isActive = true,
+                    method = requestDto.method,
+                    responseDocument = responseDocument,
+                    headers = requestDto.headers
+                )
+            }
         }
     }
 
@@ -153,7 +178,7 @@ class ApiServiceImpl : ApiService {
             mockDocument.name,
             mockDocument.path,
             mockDocument.active,
-            requestDtos = mockDocument.requests.map {
+            requestDtoList = mockDocument.requests.map {
                 createRequestModel(it)
             })
     }

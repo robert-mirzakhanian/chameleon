@@ -32,13 +32,13 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator")
 
     // Log and tracing
-    implementation("ch.qos.logback:logback-classic:1.2.10")
-    implementation("org.springframework.cloud:spring-cloud-starter-sleuth")
-    implementation("org.springframework.cloud:spring-cloud-sleuth-zipkin")
-    implementation("io.opentracing.brave:brave-opentracing")
+//    implementation("ch.qos.logback:logback-classic")
+    implementation("net.logstash.logback:logstash-logback-encoder")
+    implementation("io.micrometer:micrometer-tracing")
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
 
     // Json Spec
-    implementation("com.nfeld.jsonpathkt:jsonpathkt:2.0.0")
+    implementation("com.nfeld.jsonpathkt:jsonpathkt:2.0.1")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -47,19 +47,18 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j")
 
-
-
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+tasks {
+    withType<KotlinCompile> {
+        kotlinOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+            jvmTarget = "17"
+        }
     }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
+    withType<Test> { useJUnitPlatform() }
+    getByName("bootJar") { enabled = false }
+    jar { enabled = false }
 }

@@ -1,19 +1,19 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.6.20"
+    val kotlinVersion = "1.8.21"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
 
-    id("org.springframework.boot") version "2.7.0"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("org.springframework.boot") version "3.0.6"
+    id("io.spring.dependency-management") version "1.1.0"
 }
 
 group = "com.github.mzr.chameleon"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_11
-extra["springCloudVersion"] = "2021.0.3"
+java.sourceCompatibility = JavaVersion.VERSION_17
+extra["springCloudVersion"] = "2022.0.2"
 
 repositories {
     mavenCentral()
@@ -22,6 +22,7 @@ repositories {
 dependencyManagement {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
     }
 }
 
@@ -35,13 +36,13 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator")
 
     // Log and tracing
-    implementation("ch.qos.logback:logback-classic:1.2.10")
-    implementation("org.springframework.cloud:spring-cloud-starter-sleuth")
-    implementation("org.springframework.cloud:spring-cloud-sleuth-zipkin")
-    implementation("io.opentracing.brave:brave-opentracing")
+//    implementation(platform("io.micrometer:micrometer-tracing-bom:latest.release"))
+//    implementation("ch.qos.logback:logback-classic:1.4.7")
+    implementation("io.micrometer:micrometer-tracing")
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
 
     // Json Spec
-    implementation("com.nfeld.jsonpathkt:jsonpathkt:2.0.0")
+    implementation("com.nfeld.jsonpathkt:jsonpathkt:2.0.1")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -50,19 +51,18 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j")
 
-
-
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+tasks {
+    withType<KotlinCompile> {
+        kotlinOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+            jvmTarget = "17"
+        }
     }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
+    withType<Test> { useJUnitPlatform() }
+    getByName("bootJar") { enabled = false }
+    jar { enabled = false }
 }

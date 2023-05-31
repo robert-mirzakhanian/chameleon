@@ -33,12 +33,15 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator")
 
     // SpringDoc
-    implementation("org.springdoc:springdoc-openapi-ui:1.6.9")
-    implementation("org.springdoc:springdoc-openapi-webflux-ui:1.6.9")
+//    implementation("org.springdoc:springdoc-openapi-ui:1.6.14")
+    implementation("org.springdoc:springdoc-openapi-webflux-ui:1.6.14")
+    implementation("org.springdoc:springdoc-openapi-kotlin:1.6.14")
 
 
     // Log and tracing
-    implementation("ch.qos.logback:logback-classic:1.2.10")
+//    implementation("ch.qos.logback:logback-classic:1.2.10")
+    implementation("io.micrometer:micrometer-tracing")
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
 
     // Json Spec
     implementation("com.nfeld.jsonpathkt:jsonpathkt:2.0.0")
@@ -50,19 +53,18 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j")
 
-
-
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+tasks {
+    withType<KotlinCompile> {
+        kotlinOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+            jvmTarget = "17"
+        }
     }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
+    withType<Test> { useJUnitPlatform() }
+    getByName("bootJar") { enabled = false }
+    jar { enabled = false }
 }
